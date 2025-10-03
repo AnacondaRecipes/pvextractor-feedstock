@@ -10,39 +10,55 @@ source:
   sha256: ed6a115935e83e6faa7727107e961bc49d7914fec85e3326e5adf65cde1e83ce
 
 build:
-  noarch: python
-  number: 1
-  script: "{{ PYTHON }} -m pip install . -vv"
+  number: 0
+  # No dependencies for py39
+  skip: true  # [py<310]
+  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation --ignore-installed -vv
 
 requirements:
   host:
-    - python {{ python_min }}
     - pip
+    - python
     - setuptools
     - setuptools_scm
   run:
-    - python >={{ python_min }}
+    - python
     - numpy >=1.22
-    - astropy-base >=5.0
-    - matplotlib-base >=3.5
+    - astropy >=5.0
+    - matplotlib >=3.5
     - scipy >=1.8
     - qtpy >=2.0
     - spectral-cube >=0.4
 
 test:
-  requires:
-    - python {{ python_min }}
   imports:
     - pvextractor
     - pvextractor.gui
     - pvextractor.geometry
+  requires:
+    - pip
+    - pytest >=5
+    - pytest-astropy
+    - setuptools >= 30.3.0
+
+  commands:
+    - pip check
+    # qt.qpa.plugin: From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to load the Qt xcb platform plugin.
+    # qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
+    # This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
+    - QT_QPA_PLATFORM=offscreen pytest -v --pyargs pvextractor.tests  # [linux and x86_64] 
+    - pytest -v --pyargs pvextractor.tests  # [not (linux and x86_64)] 
 
 about:
   home: https://github.com/radio-astro-tools/pvextractor
   license: BSD-3-Clause
   license_family: BSD
   license_file: LICENSE
-  summary: 'Position-velocity diagram extractor'
+  summary: Position-velocity diagram extractor
+  description: |
+    Tool to slice through data cubes and extract position-velocity (or other) slices.
+  doc_url: https://pvextractor.readthedocs.org
+  dev_url: https://github.com/radio-astro-tools/pvextractor
 
 extra:
   recipe-maintainers:
