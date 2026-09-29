@@ -50,7 +50,7 @@ test:
     # qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.
     # This application failed to start because no Qt platform plugin could be initialized. Reinstalling the application may fix this problem.
     # ImportError: libEGL.so.1: cannot open shared object file: No such file or directory
-    - QT_QPA_PLATFORM=offscreen pytest -v --pyargs pvextractor.tests --deselect=test_gui.py::test_gui --deselect=test_gui.py::test_gui_from_fits_filename # [linux64 and py310]
+    - QT_QPA_PLATFORM=offscreen pytest -v --pyargs pvextractor.tests -k "not test_gui and test_gui_from_fits_filename" # [linux64 and py310]
     - QT_QPA_PLATFORM=offscreen pytest -v --pyargs pvextractor.tests  # [not win and not (linux64 and py310)]
     - pytest -v --pyargs pvextractor.tests  # [win]
 
